@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#059669">
+    <title>Projeto Semeando</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/imagem.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root { --primary-dark: #062419; --emerald-deep: #046c46; --emerald-main: #059669; --emerald-light: #34d399; --emerald-glow: rgba(5, 150, 105, 0.4); --bg-site: #f4fbf7; --card-bg: rgba(255, 255, 255, 0.75); --text-main: #1f3a30; --text-muted: #4b6b5f; --danger: #dc2626; --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-site); color: var(--text-main); line-height: 1.7; overflow-x: hidden; position: relative; padding-bottom: 0; }
+
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.6; animation: float 15s infinite alternate ease-in-out; }
+        .blob-1 { top: -10%; left: -10%; width: 45vw; height: 45vw; background: rgba(52, 211, 153, 0.3); animation-duration: 18s; }
+        .blob-2 { bottom: -20%; right: -10%; width: 55vw; height: 55vw; background: rgba(5, 150, 105, 0.2); animation-direction: alternate-reverse; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(8%, 15%) scale(1.1); } }
+
+        header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.5); position: fixed; width: 100%; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 5px 6%; box-shadow: 0 10px 30px -10px rgba(6, 36, 25, 0.05); transition: transform 0.4s ease-in-out, background 0.4s ease; }
+        header.header-hidden { transform: translateY(-100%); }
+        .logo img { height: 160px; width: auto; max-width: 400px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(5, 150, 105, 0.1)); }
+        
+        nav ul { list-style: none; display: flex; gap: 8px; }
+        nav a { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; cursor: pointer; padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 6px; transition: var(--transition); }
+        nav a:hover, nav a.active { color: #ffffff; background-color: var(--emerald-main); box-shadow: 0 4px 15px var(--emerald-glow); }
+
+        main { margin-top: 170px; padding: 0 6% 80px 6%; min-height: 85vh; }
+        section { display: none; }
+        section.active { display: block; animation: slideUpFade 0.6s forwards; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { font-size: 2.3rem; font-weight: 800; color: var(--primary-dark); text-align: center; margin-bottom: 35px; }
+        h2::after { content: ''; display: block; width: 50px; height: 4px; background: linear-gradient(to right, var(--emerald-main), var(--emerald-light)); border-radius: 2px; margin: 12px auto 0 auto; }
+
+        .btn { background: linear-gradient(135deg, var(--emerald-main), var(--emerald-deep)); color: #fff; padding: 14px 32px; border: none; border-radius: 30px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); text-decoration: none; justify-content: center; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -3px rgba(5, 150, 105, 0.6); }
+        .card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.8); padding: 35px; border-radius: 24px; box-shadow: 0 20px 40px -15px rgba(6, 36, 25, 0.05); backdrop-filter: blur(15px); transition: var(--transition); }
+        .card:hover { transform: translateY(-5px); border-color: rgba(5, 150, 105, 0.3); box-shadow: 0 30px 50px -10px rgba(5, 150, 105, 0.15); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: flex; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--primary-dark); align-items: center; gap: 6px; }
+        input, textarea, select { width: 100%; padding: 14px 18px; border: 2px solid rgba(5, 150, 105, 0.15); border-radius: 14px; outline: none; font-size: 0.95rem; }
+
+        /* AJUSTES DE ALINHAMENTO DO BANNER PRINCIPAL */
+        .home-banner { 
+            text-align: center; 
+            padding: 40px 20px; 
+            background: linear-gradient(to bottom, rgba(6, 36, 25, 0.1) 50%, rgba(4, 76, 49, 0.9)), url('img/fundo.jpg') center/cover no-repeat; 
+            border-radius: 32px; 
+            color: #ffffff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; /* Centraliza o conteúdo verticalmente */
+            min-height: 75vh;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        /* Margens reduzidas para aproximar os elementos */
+        .home-banner img { width: 100%; max-width: 850px; max-height: 55vh; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 15px 35px rgba(0,0,0,0.6)); }
+        .home-banner p { font-size: 1.2rem; color: #a7f3d0; margin-bottom: 25px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-weight: 600; }
+
+        .sobre-grid, .partners-grid, .contact-container { display: grid; gap: 30px; max-width: 1100px; margin: 0 auto; }
+        .sobre-grid { grid-template-columns: 1fr 1fr; }
+        .partners-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1100px; margin: 0 auto; align-items: start; }
+        .nota-box { grid-column: 1 / -1; background: rgba(255, 255, 255, 0.8); padding: 25px; border-left: 6px solid var(--emerald-main); border-radius: 12px 24px 24px 12px; display: flex; align-items: center; gap: 15px; }
+        
+        .media-item { border-radius: 20px; position: relative; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.08); background: #000; }
+        .media-img { width: 100%; height: auto; display: block; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .media-item:hover .media-img { transform: scale(1.05); opacity: 0.8; }
+        .media-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(6, 36, 25, 0.9), transparent 60%); display: flex; align-items: flex-end; padding: 25px; opacity: 0; transition: var(--transition); }
+        .media-overlay span { color: #ffffff; font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 8px; transform: translateY(10px); transition: var(--transition); }
+        .media-item:hover .media-overlay { opacity: 1; }
+        .media-item:hover .media-overlay span { transform: translateY(0); }
+
+        .social-buttons { display: flex; flex-direction: column; gap: 15px; flex: 1; }
+        .btn-social { padding: 16px; border-radius: 16px; color: white; text-decoration: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-whatsapp { background-color: #059669; } .btn-facebook { background-color: #1b4f72; } .btn-instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .qr-code-wrapper { width: 200px; height: 200px; margin: 20px auto; border: 2px solid var(--emerald-main); border-radius: 20px; padding: 10px; background: #fff; }
+        .qr-code-wrapper img { width: 100%; height: 100%; object-fit: contain; }
+
+        footer { text-align: center; padding: 30px; background-color: var(--primary-dark); color: rgba(255, 255, 255, 0.7); border-top: 4px solid var(--emerald-main); }
+
+        #toast-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: var(--emerald-main); color: white; padding: 14px 28px; border-radius: 50px; font-weight: 600; font-size: 0.95rem; box-shadow: 0 10px 30px rgba(5,150,105,0.4); animation: fadeToast 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; display: flex; align-items: center; gap: 10px; }
+        .toast.error { background: var(--danger); box-shadow: 0 10px 30px rgba(220,38,38,0.4); }
+        @keyframes fadeToast { from { opacity: 0; transform: translateY(30px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        @media (max-width: 900px) { .sobre-grid { grid-template-columns: 1fr; } }
+        
+        @media (max-width: 768px) {
+            header { padding: 5px 5%; justify-content: center; }
+            .logo img { height: 95px; max-width: 280px; }
+            
+            nav ul { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); flex-direction: row; padding: 8px 10px; justify-content: space-between; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-top: 1px solid rgba(0,0,0,0.05); overflow-x: auto; white-space: nowrap; z-index: 1000; }
+            nav a { flex-direction: column; padding: 8px; font-size: 0.65rem; font-weight: 700; gap: 4px; border-radius: 12px; min-width: 70px; }
+            nav a i { font-size: 1.4rem; }
+            
+            main { margin-top: 130px; margin-bottom: 70px; padding: 0 5% 50px 5%; }
+            
+            /* Ajustes finos do Banner no Celular */
+            .home-banner { min-height: 65vh; padding: 40px 15px; justify-content: center; }
+            .home-banner img { max-height: 40vh; max-width: 98%; margin-bottom: 5px; } 
+            .home-banner p { margin-bottom: 20px; font-size: 1.1rem; }
+            
+            .contact-container { display: flex; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+
+    <header id="mainHeader">
+        <div class="logo"><img src="img/imagem.png" alt="Logo Projeto"></div>
+        <nav>
+            <ul id="navMenu">
+                <li><a class="nav-link active" onclick="showSection('home')"><i class="ph ph-house"></i> Início</a></li>
+                <li><a class="nav-link" onclick="showSection('sobre')"><i class="ph ph-info"></i> Sobre</a></li>
+                <li><a class="nav-link" onclick="showSection('midias')"><i class="ph ph-images"></i> Mídias</a></li>
+                <li><a class="nav-link" onclick="showSection('voluntario')"><i class="ph ph-hand-heart"></i> Voluntário</a></li>
+                <li><a class="nav-link" onclick="showSection('parceiros')"><i class="ph ph-users-three"></i> Parceiros</a></li>
+                <li><a class="nav-link" onclick="showSection('contribuicoes')"><i class="ph ph-qr-code"></i> Doações</a></li>
+                <li><a class="nav-link" onclick="showSection('contato')"><i class="ph ph-envelope-simple"></i> Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="toast-container"></div>
+
+    <main>
+        <section id="home" class="active">
+            <div class="home-banner">
+                <img src="img/imagem.png" alt="Logo Semeando">
+                <p>Investindo no presente, para um futuro melhor.</p>
+                <button class="btn" onclick="showSection('sobre')">Conheça o Projeto <i class="ph ph-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <section id="sobre">
+            <h2>Sobre o Projeto</h2>
+            <div class="sobre-grid">
+                <div class="card">
+                    <h3 style="color: var(--emerald-deep); margin-bottom: 10px;"><i class="ph-fill ph-student"></i> [Setor 1 - Social]</h3>
+                    <p>Aulas gratuitas: Desenho, Inglês, Hebraico, Música, Alfabetização, entre outros.</p>
+                    <p style="margin-top: 15px; font-weight: 500;"><strong>Importante:</strong> Para manter a permanência nas aulas, é estritamente obrigatório participar das reuniões de culto na quarta semana de cada mês, de acordo com a agenda local.</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--emerald-deep); margin-bottom: 10px;"><i class="ph-fill ph-users"></i> [Setor 2 - Campo]</h3>
+                    <p>Evangelismo nas ruas com grupo de voluntários das igrejas parceiras.</p>
+                    <p style="margin-top: 15px;">Evangelismo pessoal por meio de planejamento, com convites individuais e apoio mútuo.</p>
+                </div>
+                <div class="nota-box">
+                    <i class="ph-fill ph-warning-circle" style="font-size: 2rem; color: var(--emerald-main);"></i>
+                    <span>Todos os trabalhos serão focados nas reuniões evangelísticas realizadas na quarta semana de cada mês.</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="midias">
+            <h2>Galeria de Mídias</h2>
+            <div class="gallery-grid" id="container-midias"></div>
+        </section>
+
+        <section id="voluntario">
+            <h2>Seja um Voluntário</h2>
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <form onsubmit="salvarVoluntario(event)">
+                    <div class="form-group"><label>Nome Completo</label><input type="text" id="vol-nome" required></div>
+                    <div class="form-group"><label>WhatsApp</label><input type="text" id="vol-whatsapp" required></div>
+                    <div class="form-group"><label>E-mail</label><input type="email" id="vol-email" required></div>
+                    <div class="form-group"><label>Área</label>
+                        <select id="vol-area" required>
+                            <option value="">Selecione...</option>
+                            <option value="Ensino">Ensino (Social)</option>
+                            <option value="Campo">Evangelismo de Campo</option>
+                            <option value="Apoio">Apoio Geral</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" style="width: 100%;">Enviar Inscrição</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="parceiros">
+            <h2>Igrejas Parceiras</h2>
+            <div class="partners-grid" id="container-parceiros"></div>
+        </section>
+
+        <section id="contribuicoes">
+            <h2>Contribuições</h2>
+            <div class="card" style="max-width: 500px; margin: 0 auto; text-align: center;">
+                <h3>Apoie esta Semente</h3>
+                <div class="qr-code-wrapper"><img src="img/pix.png" id="img-qrcode-pix" alt="QR Code Pix"></div>
+                <input type="text" id="view-pix" value="Carregando chave PIX..." readonly style="text-align: center; font-weight: bold; margin-top: 10px;">
+            </div>
+        </section>
+
+        <section id="contato">
+            <h2>Fale Conosco</h2>
+            <div class="contact-container" style="display: flex;">
+                <div class="social-buttons" style="flex:1; min-width:250px;">
+                    <a href="#" id="link-whatsapp" target="_blank" class="btn-social btn-whatsapp"><i class="ph ph-whatsapp-logo"></i> WhatsApp</a>
+                    <a href="#" id="link-instagram" target="_blank" class="btn-social btn-instagram"><i class="ph ph-instagram-logo"></i> Instagram</a>
+                    <a href="#" id="link-facebook" target="_blank" class="btn-social btn-facebook"><i class="ph ph-facebook-logo"></i> Facebook</a>
+                </div>
+                <div class="card" style="flex: 2; min-width: 300px;">
+                    <form onsubmit="enviarContato(event)">
+                        <div class="form-group"><label>Nome</label><input type="text" id="contato-nome" required></div>
+                        <div class="form-group"><label>E-mail</label><input type="email" id="contato-email" required></div>
+                        <div class="form-group"><label>Mensagem</label><textarea id="contato-msg" rows="4" required></textarea></div>
+                        <button type="submit" class="btn">Enviar E-mail</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer><p>&copy; 2026 Projeto Semeando.</p></footer>
+
+    <script>
+        function showToast(mensagem, isError = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            const icon = isError ? 'ph-warning-circle' : 'ph-check-circle';
+            toast.innerHTML = `<i class="ph-fill ${icon}" style="font-size:1.3rem;"></i> ${mensagem}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(20px)'; setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAUsp1M9wrjBbM356dx2QvD5wZp_ir53us", authDomain: "projeto-semeando.firebaseapp.com",
+            projectId: "projeto-semeando", storageBucket: "projeto-semeando.firebasestorage.app",
+            messagingSenderId: "1022740589777", appId: "1:1022740589777:web:18a4b2ede4f058f9a6a9f0"
+        };
+
+        const app = initializeApp(firebaseConfig); const db = getFirestore(app);
+        let emailDestino = "jailsonbomfim13@gmail.com"; 
+
+        async function aplicarConfiguracoes() {
+            try {
+                const configDoc = await getDoc(doc(db, "config", "site"));
+                if(configDoc.exists()) {
+                    const c = configDoc.data();
+                    if(c.email) emailDestino = c.email;
+                    if(c.pix) document.getElementById('view-pix').value = c.pix;
+                    if(c.pixImgUrl) document.getElementById('img-qrcode-pix').src = c.pixImgUrl;
+
+                    if(c.whatsapp) {
+                        const numLimpo = c.whatsapp.replace(/\D/g, ''); 
+                        document.getElementById('link-whatsapp').href = `https://wa.me/${numLimpo}?text=Olá! Gostaria de falar com o Projeto Semeando.`;
+                    }
+                    const btnInsta = document.getElementById('link-instagram');
+                    if(c.instagram) { btnInsta.href = c.instagram; btnInsta.style.display = 'flex'; } else { btnInsta.style.display = 'none'; }
+                    const btnFace = document.getElementById('link-facebook');
+                    if(c.facebook) { btnFace.href = c.facebook; btnFace.style.display = 'flex'; } else { btnFace.style.display = 'none'; }
+                }
+            } catch (e) { console.error("Erro config."); }
+        }
+
+        async function carregarMidias() {
+            const snap = await getDocs(collection(db, "midias"));
+            const container = document.getElementById('container-midias');
+            container.innerHTML = '';
+            if(snap.empty) container.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Nenhuma mídia adicionada ainda.</p>';
+            snap.forEach(doc => { 
+                const m = doc.data(); 
+                container.innerHTML += `
+                <div class="media-item">
+                    <img src="${m.url}" alt="${m.titulo}" class="media-img">
+                    <div class="media-overlay"><span><i class="ph ph-image"></i> ${m.titulo}</span></div>
+                </div>`; 
+            });
+        }
+
+        async function carregarParceiros() {
+            const snap = await getDocs(collection(db, "parceiros"));
+            const container = document.getElementById('container-parceiros');
+            container.innerHTML = '';
+            if(snap.empty) { container.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Nenhum parceiro adicionado ainda.</p>'; return; }
+            
+            snap.forEach(doc => {
+                const p = doc.data();
+                const botaoLink = p.link 
+                    ? `<a href="${p.link}" target="_blank" class="btn" style="width: 100%; margin-top: 15px; padding: 12px; font-size: 0.9rem; background: var(--primary-dark);">
+                         <i class="ph ph-arrow-square-out"></i> Visitar Rede Social / Site
+                       </a>` 
+                    : '';
+
+                container.innerHTML += `
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h3 style="color: var(--primary-dark); margin-bottom: 10px; display:flex; align-items:center; gap:8px;">
+                            <i class="ph-fill ph-church" style="color: var(--emerald-main);"></i> ${p.nome}
+                        </h3>
+                        <p style="color: var(--text-muted);">${p.descricao}</p>
+                    </div>
+                    ${botaoLink}
+                </div>`;
+            });
+        }
+
+        window.salvarVoluntario = async function(event) {
+            event.preventDefault(); const btn = event.target.querySelector('button'); btn.innerHTML = "Enviando... <i class='ph ph-spinner-gap'></i>"; 
+            const nome = document.getElementById('vol-nome').value; const whatsapp = document.getElementById('vol-whatsapp').value; const email = document.getElementById('vol-email').value; const area = document.getElementById('vol-area').value;
+            try {
+                await addDoc(collection(db, "voluntarios"), { nome, whatsapp, email, area, dataCadastro: new Date().toLocaleString("pt-BR") });
+                await fetch(`https://formsubmit.co/ajax/${emailDestino}`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Assunto: "NOVO VOLUNTÁRIO", Nome: nome, WhatsApp: whatsapp, Email: email, Area: area }) });
+                showToast("Inscrição enviada com sucesso!"); event.target.reset(); 
+            } catch (e) { showToast("Erro ao enviar inscrição.", true); } finally { btn.innerHTML = "Enviar Inscrição"; }
+        }
+
+        window.enviarContato = async function(event) {
+            event.preventDefault(); const btn = event.target.querySelector('button'); btn.innerHTML = "Enviando... <i class='ph ph-spinner-gap'></i>";
+            const nome = document.getElementById('contato-nome').value; const email = document.getElementById('contato-email').value; const msg = document.getElementById('contato-msg').value;
+            try {
+                await fetch(`https://formsubmit.co/ajax/${emailDestino}`, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ Assunto: "NOVO CONTATO DO SITE", Nome: nome, Email: email, Mensagem: msg }) });
+                showToast("Mensagem enviada com sucesso!"); event.target.reset();
+            } catch(e) { showToast("Erro ao enviar mensagem.", true); } finally { btn.innerHTML = "Enviar E-mail"; }
+        }
+
+        aplicarConfiguracoes(); carregarMidias(); carregarParceiros();
+    </script>
+
+    <script>
+        function showSection(sectionId) { document.querySelectorAll('section').forEach(s => s.classList.remove('active')); document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); document.getElementById(sectionId).classList.add('active'); if(event && event.currentTarget) event.currentTarget.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        let lastScrollTop = 0; const header = document.getElementById('mainHeader');
+        window.addEventListener('scroll', function() { if(window.innerWidth > 768) { let scrollTop = window.pageYOffset || document.documentElement.scrollTop; if (scrollTop > lastScrollTop && scrollTop > 100) { header.classList.add('header-hidden'); } else { header.classList.remove('header-hidden'); } lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; } });
+
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => console.log('PWA Registrado')).catch(err => console.log('Erro PWA:', err)); }); }
+    </script>
+</body>
+</html>
